@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_restful import Api
+from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from sqlalchemy import MetaData
@@ -23,6 +24,7 @@ db.init_app(app)
 api = Api(app)
 CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 ma = Marshmallow(app)
 ma.init_app(app)

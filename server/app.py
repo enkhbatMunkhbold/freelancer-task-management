@@ -2,9 +2,24 @@ from flask import request, session, jsonify
 from flask_restful import Resource
 from marshmallow.exceptions import ValidationError
 
-from config import app, db, api, ma
+from config import app, db, api, ma, socketio
 from models import User, Client, Job, Order, UserSchema, ClientSchema, JobSchema, OrderSchema
 
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+@socketio.on_error()
+def error_handler(e):
+    print(f'SocketIO error: {e}')
+
+@socketio.on_error_default
+def default_error_handler(e):
+    print(f'Default SocketIO error: {e}')
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -18,6 +33,10 @@ orders_schema = OrderSchema(many=True)
 @app.route('/')
 def index():
     return '<h1>Project Server</h1>'
+
+@app.route('/socket.io/')
+def socketio_health():
+    return jsonify({'status': 'Socket.IO server is running'}), 200
 
 class Register(Resource):
     def post(self):
@@ -313,5 +332,5 @@ class OrderById(Resource):
 api.add_resource(OrderById, '/orders/<int:order_id>')
 
 if __name__ == '__main__':
-    app.run(port=5555, debug=True)
+    socketio.run(app, port=5555, debug=True)
 
